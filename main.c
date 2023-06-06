@@ -143,7 +143,7 @@ static void rpc_domain_add(struct mg_rpc_req *r) {
       mg_ws_printf(c, WEBSOCKET_OP_TEXT, "{%m:%m,%m:%m}",
                  MG_ESC("method"), MG_ESC("notification"), MG_ESC("message"),  MG_ESC("New domain is added to filter list"));
       mg_ws_printf(c, WEBSOCKET_OP_TEXT, "{%m:%m,%m:%m}",
-                 MG_ESC("method"), MG_ESC("notification_demo_hidden"), MG_ESC("domain_list"),  MG_ESC(domain_list));
+                 MG_ESC("method"), MG_ESC("notification_demo_hidden"), MG_ESC("domain"),  MG_ESC(domain));
                  }
   }
 }
