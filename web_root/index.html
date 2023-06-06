@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <body>
+    <h1>JSON-RPC over Websocket demo</h1>
+    <input id="url" type="text" placeholder="Type URL" value="ws://34.142.188.152:8081/websocket" style="width:20em;" /> 
+    <button id="connect">connect</button>
+    <div style="height: 0.3em;">&nbsp;</div>
+    <button id="btn1">Calculate 1 + 2</button>
+    <button id="btn2">Calculate 2 * 3</button>
+    <div style="height: 0.3em;">&nbsp;</div>
+    <button id="btn3">Domain Query</button>
+    <input type="text" id="qdomain" name="qdomain"><br>
+    <div style="height: 0.3em;">&nbsp;</div>
+    <button id="btn4">Add filter domain</button>
+    <input type="text" id="adomain" name="adomain"><br>
+    <div style="height: 0.3em;">&nbsp;</div>
+    <button id="btn5">Filter by Category</button>
+    <div style="margin-top: 1em;">Event log:</div>
+    <div id="log" style="background: #eee; height: 10em; padding: 0.5em; overflow:auto;"><div>
+  </body>
+  <script src="rpc-over-websocket.js"></script>
+  <script>
+    var rpc, E = function(id) { return document.getElementById(id); };
+    var url = E('url'), connect = E('connect'), btn1 = E('btn1'), btn2 = E('btn2'), btn3 = E('btn3'), btn4 = E('btn4'), btn5 = E('btn5'), msglog = E('log');
+    var enable = function(en) { btn1.disabled = btn2.disabled = btn3.disabled = btn4.disabled = btn5.disabled =!en; url.disabled = en; connect.innerHTML = en ? 'disconnect' : 'connect'; };
+    var log = text => msglog.innerHTML += text + '<br/>\n';
+    enable(false);
+    connect.onclick = function() {
+      console.log(rpc);
+      if (rpc) { rpc.close(); rpc = null; return; }
+      rpc = jsonrpc(url.value,
+            () => enable(true),
+            () => enable(false),
+            msg => log('NOTIFICATION: ' + JSON.stringify(msg)));
+    };
+    btn1.onclick = ev => rpc.call('sum', [1, 2]).then(res => log('SUM:' + JSON.stringify(res)));
+    btn2.onclick = ev => rpc.call('mul', [2, 3]).then(res => log('MUL:' + JSON.stringify(res)));
+    btn3.onclick = ev => rpc.call('domain_query', [document.getElementById('qdomain').value]).then(res => log('domain_query:' + JSON.stringify(res)));
+    btn4.onclick = ev => rpc.call('domain_add', [document.getElementById('adomain').value]).then(res => log('domain_add:' + JSON.stringify(res)));
+  </script>
+</html>
