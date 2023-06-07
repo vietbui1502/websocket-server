@@ -148,12 +148,12 @@ static void rpc_domain_add(struct mg_rpc_req *r) {
   }
 }
 
-static void rpc_update_host(struct mg_rpc_req *r) {
-  char *list = NULL;
+static void rpc_client_connect(struct mg_rpc_req *r) {
+  char *host = NULL;
   char *result = (char *) malloc(256 *sizeof(char));
   
-  list = mg_json_get_str(r->frame, "$.params[0]");
-  printf("DEBUG: client list: %s\n", list);
+  host = mg_json_get_str(r->frame, "$.params[0]");
+  printf("DEBUG: host: %s\n", host);
 
   sprintf(result, "update successfully");
 
@@ -167,7 +167,7 @@ static void rpc_update_host(struct mg_rpc_req *r) {
   for (struct mg_connection *c = mgr_tmp->conns; c != NULL; c = c->next) {
       if (c->data[0] != 'W') continue;
       mg_ws_printf(c, WEBSOCKET_OP_TEXT, "{%m:%m,%m:%m}",
-                 MG_ESC("method"), MG_ESC("update_host"), MG_ESC("list"),  MG_ESC(list));
+                 MG_ESC("method"), MG_ESC("client_connect"), MG_ESC("info"),  MG_ESC(host));
   }
 
 }
@@ -230,7 +230,7 @@ int main(void) {
   mg_rpc_add(&s_rpc_head, mg_str("mul"), rpc_mul, NULL);
   mg_rpc_add(&s_rpc_head, mg_str("domain_query"), rpc_domain_query, NULL);
   mg_rpc_add(&s_rpc_head, mg_str("domain_add"), rpc_domain_add, NULL);
-  mg_rpc_add(&s_rpc_head, mg_str("update_host"), rpc_update_host, NULL);
+  mg_rpc_add(&s_rpc_head, mg_str("client_connect"), rpc_client_connect, NULL);
   mg_rpc_add(&s_rpc_head, mg_str("rpc.list"), mg_rpc_list, &s_rpc_head);
 
   printf("Starting WS listener on %s/websocket\n", s_listen_on);
