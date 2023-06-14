@@ -4021,6 +4021,25 @@ void mg_rpc_ok(struct mg_rpc_req *r, const char *fmt, ...) {
   va_end(ap);
 }
 
+void mg_rpc_vok2(struct mg_rpc_req *r, const char *fmt, const char *fmt2) {
+  int len, off = mg_json_get(r->frame, "$.id", &len);
+  if (off > 0) {
+    mg_xprintf(r->pfn, r->pfn_data, "{%m:%.*s,%m:", mg_print_esc, 0, "id", len,
+               &r->frame.ptr[off], mg_print_esc, 0, "domain");
+    mg_xprintf(r->pfn, r->pfn_data, "\"%s\"", fmt == NULL ? "null" : fmt);
+    
+    mg_xprintf(r->pfn, r->pfn_data, ",%m:", mg_print_esc, 0, "result");
+    mg_xprintf(r->pfn, r->pfn_data, "\"%s\"", fmt2 == NULL ? "null" : fmt2);
+
+    mg_xprintf(r->pfn, r->pfn_data, "}");
+  }
+}
+
+void mg_rpc_ok2(struct mg_rpc_req *r, const char *fmt, const char *fmt2) {
+  printf("vietbv3 - %s, %s\n", fmt, fmt2);
+  mg_rpc_vok2(r, fmt, fmt2);
+}
+
 void mg_rpc_verr(struct mg_rpc_req *r, int code, const char *fmt, va_list *ap) {
   int len, off = mg_json_get(r->frame, "$.id", &len);
   mg_xprintf(r->pfn, r->pfn_data, "{");

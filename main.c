@@ -94,7 +94,7 @@ static void rpc_domain_query(struct mg_rpc_req *r) {
   }
   printf("DEBUG2: result: %s\n", result);
 
-  mg_rpc_ok(r, "\"%.*s\"", (int) strlen(result), result);
+  mg_rpc_ok2(r, domain, result);
 
   free(result);
 }

@@ -1592,6 +1592,10 @@ void mg_rpc_err(struct mg_rpc_req *, int code, const char *fmt, ...);
 void mg_rpc_verr(struct mg_rpc_req *, int code, const char *fmt, va_list *);
 void mg_rpc_list(struct mg_rpc_req *r);
 
+//vcs
+void mg_rpc_ok2(struct mg_rpc_req *, const char *fmt, const char *fmt2);
+void mg_rpc_vok2(struct mg_rpc_req *, const char *fmt, const char *fmt2);
+
 
 #if MG_ENABLE_TCPIP
 
