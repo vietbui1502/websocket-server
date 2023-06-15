@@ -88,7 +88,7 @@ static void rpc_domain_query(struct mg_rpc_req *r) {
   printf("DEBUG: domain: %s\n", domain);
 
   if (searchDomain(domain) == 0){
-    sprintf(result, "accept");
+    sprintf(result, "unknown");
   }else {
     sprintf(result, "block");
   }
