@@ -8,8 +8,8 @@
 #define DOMAIN_BLACKLIST_FILE "domain_blacklist"
 #define MAX_DOMAIN_LENGTH 128
 
-static const char *s_listen_on = "ws://10.148.0.3:8081";
-//static const char *s_listen_on = "ws://localhost:8081";
+//static const char *s_listen_on = "ws://10.148.0.3:8081";
+static const char *s_listen_on = "ws://localhost:8081";
 static const char *s_web_root = "web_root";
 static struct mg_rpc *s_rpc_head = NULL;
 
@@ -106,7 +106,7 @@ long insertDomain2(char *domain){
 
 long loadDomainFromFile() {
     FILE *file;
-    long numLines;
+    long numLines = 0;
     char line[MAX_DOMAIN_LENGTH];  // Assuming each line has at most 100 characters
     printf("Enter load domain from file\n");
 
