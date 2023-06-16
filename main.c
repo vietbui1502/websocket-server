@@ -5,16 +5,21 @@
 
 #include "mongoose.h"
 
+#define DOMAIN_BLACKLIST_FILE "domain_blacklist"
+#define MAX_DOMAIN_LENGTH 128
+
 static const char *s_listen_on = "ws://10.148.0.3:8081";
+//static const char *s_listen_on = "ws://localhost:8081";
 static const char *s_web_root = "web_root";
 static struct mg_rpc *s_rpc_head = NULL;
 
-static char *domain_filter_list[] = {"abc.top", "xyz.top"};
+static char **domain_back_list = NULL;  // List of strings
+static long numDomains = 0;
 
 static struct mg_mgr mgr;
 
 struct domain_node {
-  char domain[256];
+  char domain[MAX_DOMAIN_LENGTH];
   struct domain_node *next;
 };
 
@@ -66,6 +71,108 @@ void insertDomain(char *domain){
    return;
 }
 
+int searchDomain2(char *domain) {
+  printf("enter search domain2\n");
+  long i;
+  for (i = 0; i < numDomains; i++) {
+    if (strcmp(domain_back_list[i], domain) == 0) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+long insertDomain2(char *domain){
+  // Allocate memory for a new string
+  char *newLine = malloc(strlen(domain) + 1);
+  if (newLine == NULL) {
+    printf("Memory allocation failed.\n");
+    return -1;
+  }
+
+  // Copy the line to the new string
+  strcpy(newLine, domain);
+
+  // Add the new string to the list
+  domain_back_list = realloc(domain_back_list, (numDomains + 1) * sizeof(char *));
+  if (domain_back_list == NULL) {
+    printf("Memory reallocation failed.\n");
+    return -1;
+  }
+  domain_back_list[numDomains] = newLine;
+  numDomains++;
+  return numDomains;
+}
+
+long loadDomainFromFile() {
+    FILE *file;
+    long numLines;
+    char line[MAX_DOMAIN_LENGTH];  // Assuming each line has at most 100 characters
+    printf("Enter load domain from file\n");
+
+    // Open the file for reading
+    file = fopen(DOMAIN_BLACKLIST_FILE, "r");
+    if (file == NULL) {
+        printf("Failed to open the file.\n");
+        return -1;
+    }
+
+    // Read the file line by line
+    while (fgets(line, sizeof(line), file) != NULL) {
+
+        // Remove the newline character if it exists
+        int lineLength = strlen(line);
+        if (line[lineLength - 1] == '\n') {
+            line[lineLength - 1] = '\0';
+        }
+      
+        // Allocate memory for a new string
+        char *newLine = malloc(strlen(line) + 1);
+        if (newLine == NULL) {
+            printf("Memory allocation failed.\n");
+            return -1;
+        }
+
+        // Copy the line to the new string
+        strcpy(newLine, line);
+
+        // Add the new string to the list
+        domain_back_list = realloc(domain_back_list, (numLines + 1) * sizeof(char *));
+        if (domain_back_list == NULL) {
+            printf("Memory reallocation failed.\n");
+            return -1;
+        }
+        domain_back_list[numLines] = newLine;
+      
+        //Add domain to list
+        //insertDomain(line);
+        numLines++;
+    }
+
+    // Close the file
+    fclose(file);
+
+    /*
+    // Print the lines
+    for (i = 0; i < numLines; i++) {
+        printf("%s", lines[i]);
+    }
+
+    // Free the memory
+    for (i = 0; i < numLines; i++) {
+        free(lines[i]);
+    }
+    free(lines);
+    */
+
+   printf("exist load domain from file\n");
+
+    return numLines;
+
+}
+
+
+
 static void rpc_sum(struct mg_rpc_req *r) {
   double a = 0.0, b = 0.0;
   mg_json_get_num(r->frame, "$.params[0]", &a);
@@ -87,10 +194,10 @@ static void rpc_domain_query(struct mg_rpc_req *r) {
   domain = mg_json_get_str(r->frame, "$.params[0]");
   printf("DEBUG: domain: %s\n", domain);
 
-  if (searchDomain(domain) == 0){
-    sprintf(result, "unknown");
-  }else {
+  if (searchDomain2(domain) == 1){
     sprintf(result, "block");
+  }else {
+    sprintf(result, "unknown");
   }
   printf("DEBUG2: result: %s\n", result);
 
@@ -108,8 +215,8 @@ static void rpc_domain_add(struct mg_rpc_req *r) {
   domain = mg_json_get_str(r->frame, "$.params[0]");
   printf("DEBUG: domain_add: %s\n", domain);
 
-  if (searchDomain(domain) == 0){
-      insertDomain(domain);
+  if (searchDomain2(domain) == 0){
+      insertDomain2(domain);
       sprintf(result, "Domain '%s' is added to filter list!!", domain);
       tmp = 1;
   }else {
@@ -220,10 +327,16 @@ int main(void) {
   mg_log_set(MG_LL_DEBUG);  // Set log level
   //mg_timer_add(&mgr, 5000, MG_TIMER_REPEAT, timer_fn, &mgr);  // Init timer
 
-  insertDomain("abc.top");
-  insertDomain("xyz.top");
+  //insertDomain("abc.top");
+  //insertDomain("xyz.top");
 
-  printList();
+  //printList();
+
+  // Load domain backlist from file
+  numDomains = loadDomainFromFile();
+  if (numDomains > 0) {
+    printf("%ld domains are added to the blacklist\n", numDomains);
+  }
 
   // Configure JSON-RPC functions we're going to handle
   mg_rpc_add(&s_rpc_head, mg_str("sum"), rpc_sum, NULL);
