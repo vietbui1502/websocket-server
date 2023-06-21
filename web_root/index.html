@@ -14,7 +14,27 @@
     <button id="btn4">Add filter domain</button>
     <input type="text" id="adomain" name="adomain"><br>
     <div style="height: 0.3em;">&nbsp;</div>
-    <button id="btn5">Filter by Category</button>
+    <p>Parental Control rule</p>
+      <label for="mac">MAC Address:</label>
+      <input type="text" id="mac" name="mac" placeholder="Enter MAC address"><br>
+      
+      <label for="category">Select filter category:</label><br>
+      <input type="checkbox" id="ctg1" value="Advertising">
+      <label for="ctg1"> Advertising</label><br>
+      <input type="checkbox" id="ctg2" value="Online Dating">
+      <label for="ctg2"> Online Dating</label><br>
+      <input type="checkbox" id="ctg3" value="Gambling">
+      <label for="ctg3"> Gambling</label><br>
+      <input type="checkbox" id="ctg4" value="Pornography">
+      <label for="ctg4"> Pornography</label><br>
+      <input type="checkbox" id="ctg5" value="Dugs">
+      <label for="ctg5"> Drugs</label><br>
+
+      <label for="time">Schedules:</label>
+      <input type="text" id="time" name="time" placeholder="Ex: 08-17,22-06"><br>
+
+      <button id="btn5">Submit</button>
+
     <div style="margin-top: 1em;">Event log:</div>
     <div id="log" style="background: #eee; height: 10em; padding: 0.5em; overflow:auto;"><div>
   </body>
@@ -37,5 +57,6 @@
     btn2.onclick = ev => rpc.call('mul', [2, 3]).then(res => log('MUL:' + JSON.stringify(res)));
     btn3.onclick = ev => rpc.call('domain_query', [document.getElementById('qdomain').value]).then(res => log('domain_query:' + JSON.stringify(res)));
     btn4.onclick = ev => rpc.call('domain_add', [document.getElementById('adomain').value]).then(res => log('domain_add:' + JSON.stringify(res)));
+    btn5.onclick = ev => rpc.call('add_rule', [document.getElementById('mac').value, document.getElementById('time').value]).then(res => log('add_rule:' + JSON.stringify(res)));
   </script>
 </html>

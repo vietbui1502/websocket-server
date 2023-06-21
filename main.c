@@ -255,6 +255,26 @@ static void rpc_domain_add(struct mg_rpc_req *r) {
   }
 }
 
+static void add_rule(struct mg_rpc_req *r) {
+  char *mac = NULL;
+  char *time = NULL;
+  char *result = (char *) malloc(256 *sizeof(char));
+  int tmp = 0;
+  
+  mac = mg_json_get_str(r->frame, "$.params[0]");
+  printf("DEBUG: mac: %s\n", mac);
+
+  time = mg_json_get_str(r->frame, "$.params[1]");
+  printf("DEBUG: time: %s\n", time);
+
+  sprintf(result, "Added parental control rule - MAC: '%s' , Content filter category: , schedules : '%s'", mac, time);
+
+  mg_rpc_ok(r, "\"%.*s\"", (int) strlen(result), result);
+
+  free(result);
+}
+
+
 static void rpc_client_connect(struct mg_rpc_req *r) {
   char *host = NULL;
   char *result = (char *) malloc(256 *sizeof(char));
@@ -344,6 +364,7 @@ int main(void) {
   mg_rpc_add(&s_rpc_head, mg_str("domain_query"), rpc_domain_query, NULL);
   mg_rpc_add(&s_rpc_head, mg_str("domain_add"), rpc_domain_add, NULL);
   mg_rpc_add(&s_rpc_head, mg_str("client_connect"), rpc_client_connect, NULL);
+  mg_rpc_add(&s_rpc_head, mg_str("add_rule"), add_rule, NULL);
   mg_rpc_add(&s_rpc_head, mg_str("rpc.list"), mg_rpc_list, &s_rpc_head);
 
   printf("Starting WS listener on %s/websocket\n", s_listen_on);
