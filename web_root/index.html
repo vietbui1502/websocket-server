@@ -15,8 +15,9 @@
     <input type="text" id="adomain" name="adomain"><br>
     <div style="height: 0.3em;">&nbsp;</div>
     <p>Parental Control rule</p>
+    <form>
       <label for="mac">MAC Address:</label>
-      <input type="text" id="mac" name="mac" placeholder="Enter MAC address"><br>
+      <input type="text" id="mac" name="mac" placeholder="Enter MAC address" required><br>
       
       <label for="category">Select filter category:</label><br>
       <input type="checkbox" id="ctg1" value="Advertising">
@@ -31,9 +32,10 @@
       <label for="ctg5"> Drugs</label><br>
 
       <label for="time">Schedules:</label>
-      <input type="text" id="time" name="time" placeholder="Ex: 08-17,22-06"><br>
+      <input type="text" id="time" name="time" placeholder="Ex: 08-17" required><br>
 
       <button id="btn5">Submit</button>
+    </form>
 
     <div style="margin-top: 1em;">Event log:</div>
     <div id="log" style="background: #eee; height: 10em; padding: 0.5em; overflow:auto;"><div>
@@ -57,6 +59,34 @@
     btn2.onclick = ev => rpc.call('mul', [2, 3]).then(res => log('MUL:' + JSON.stringify(res)));
     btn3.onclick = ev => rpc.call('domain_query', [document.getElementById('qdomain').value]).then(res => log('domain_query:' + JSON.stringify(res)));
     btn4.onclick = ev => rpc.call('domain_add', [document.getElementById('adomain').value]).then(res => log('domain_add:' + JSON.stringify(res)));
-    btn5.onclick = ev => rpc.call('add_rule', [document.getElementById('mac').value, document.getElementById('time').value]).then(res => log('add_rule:' + JSON.stringify(res)));
+
+    const form = document.querySelector('form');
+    form.addEventListener('submit', ev => {
+    ev.preventDefault();
+
+    let macAdd = document.getElementById("mac").value
+    if (isValidMACAddress(macAdd) == "false"){
+      alert("Wrong MAC Adress format");
+      return
+    }
+
+    let schedule = document.getElementById("time").value
+    if (isValidSchedule(schedule) == "false") {
+      alert("Wrong Schedule format");
+      return
+    }
+
+    
+    let values = Array.from(document.querySelectorAll('input[type=checkbox]:checked'))
+    .map(item => item.value)
+    .join(',');
+
+    if (values==''){
+      alert("Please select category");
+      return
+    }
+
+    rpc.call('add_rule', [document.getElementById('mac').value, `${values}`, document.getElementById('time').value]).then(res => log('add_rule:' + JSON.stringify(res)));
+  });
   </script>
 </html>

@@ -34,3 +34,45 @@ var jsonrpc = function(url, onopen, onclose, onnotification) {
     },
   };
 };
+
+function isValidMACAddress(str) {
+  // Regex to check valid
+  // MAC_Address 
+  let regex = new RegExp(/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})|([0-9a-fA-F]{4}.[0-9a-fA-F]{4}.[0-9a-fA-F]{4})$/);
+
+  // if str
+  // is empty return false
+  if (str == null) {
+      return "false";
+  }
+
+  // Return true if the str
+  // matched the ReGex
+  if (regex.test(str) == true) {
+      return "true";
+  }
+  else {
+      return "false";
+  }
+}
+
+function isValidSchedule(str) {
+  // Regex to check valid
+  // MAC_Address 
+  let regex = new RegExp(/^(0[0-9]|1\d|2[0-3]){1}-(0[0-9]|1\d|2[0-3]){1}$/);
+
+  // if str
+  // is empty return false
+  if (str == null) {
+      return "false";
+  }
+
+  // Return true if the str
+  // matched the ReGex
+  if (regex.test(str) == true) {
+      return "true";
+  }
+  else {
+      return "false";
+  }
+}

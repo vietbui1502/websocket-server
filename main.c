@@ -256,20 +256,29 @@ static void rpc_domain_add(struct mg_rpc_req *r) {
 }
 
 static void add_rule(struct mg_rpc_req *r) {
-  char *mac = NULL;
-  char *time = NULL;
+  char *mac = NULL, *category = NULL, *time = NULL;
   char *result = (char *) malloc(256 *sizeof(char));
-  int tmp = 0;
+  char rule[256];
   
   mac = mg_json_get_str(r->frame, "$.params[0]");
-  printf("DEBUG: mac: %s\n", mac);
+  category = mg_json_get_str(r->frame, "$.params[1]");
+  time = mg_json_get_str(r->frame, "$.params[2]");
 
-  time = mg_json_get_str(r->frame, "$.params[1]");
-  printf("DEBUG: time: %s\n", time);
-
-  sprintf(result, "Added parental control rule - MAC: '%s' , Content filter category: , schedules : '%s'", mac, time);
+  sprintf(result, "Added parental control rule");
 
   mg_rpc_ok(r, "\"%.*s\"", (int) strlen(result), result);
+
+  sprintf(rule, "{ \"MAC\": \"%s\", \"Category\": [%s], \"Schedule\": \"%s\" }", mac, category, time);
+  printf("rule: %s\n", rule);
+
+  struct mg_mgr *mgr_tmp = (struct mg_mgr *) &mgr;
+
+  // Broadcast message to all connected websocket clients.
+  for (struct mg_connection *c = mgr_tmp->conns; c != NULL; c = c->next) {
+      if (c->data[0] != 'W') continue;
+      mg_ws_printf(c, WEBSOCKET_OP_TEXT, "{%m:%m,%m:{\"MAC\":%m, \"Category\":%m, \"Schdedule\":%m}}",
+                 MG_ESC("method"), MG_ESC("add_rule"), MG_ESC("rule"),  MG_ESC(mac), MG_ESC(category), MG_ESC(time));
+  }
 
   free(result);
 }
