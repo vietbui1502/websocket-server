@@ -104,6 +104,21 @@ long insertDomain2(char *domain){
   return numDomains;
 }
 
+long removeDomain2(char *domain){
+  // Allocate memory for a new string
+
+  printf("enter removeDomain2\n");
+  long i;
+  for (i = 0; i < numDomains; i++) {
+    if (strcmp(domain_back_list[i], domain) == 0) {
+      domain_back_list[i] = NULL;
+      return 1;
+    }
+  }
+  return 0;
+}
+
+
 long loadDomainFromFile() {
     FILE *file;
     long numLines = 0;
@@ -255,6 +270,30 @@ static void rpc_domain_add(struct mg_rpc_req *r) {
   }
 }
 
+
+static void rpc_domain_delete(struct mg_rpc_req *r) {
+  char *domain = NULL;
+  char *result = (char *) malloc(256 *sizeof(char));
+  int tmp = 0;
+  
+  domain = mg_json_get_str(r->frame, "$.params[0]");
+  printf("DEBUG: domain_add: %s\n", domain);
+
+  if (searchDomain2(domain) == 1){
+      removeDomain2(domain);
+      sprintf(result, "Domain '%s' is deleted from filter list!!", domain);
+      tmp = 1;
+  }else {
+      sprintf(result, "Domain '%s' is not existed in filter list!!", domain);
+      tmp = 0;
+  }
+
+  mg_rpc_ok(r, "\"%.*s\"", (int) strlen(result), result);
+
+  free(result);
+}
+
+
 static void add_rule(struct mg_rpc_req *r) {
   char *mac = NULL, *category = NULL, *time = NULL;
   char *result = (char *) malloc(256 *sizeof(char));
@@ -372,6 +411,7 @@ int main(void) {
   mg_rpc_add(&s_rpc_head, mg_str("mul"), rpc_mul, NULL);
   mg_rpc_add(&s_rpc_head, mg_str("domain_query"), rpc_domain_query, NULL);
   mg_rpc_add(&s_rpc_head, mg_str("domain_add"), rpc_domain_add, NULL);
+  mg_rpc_add(&s_rpc_head, mg_str("domain_delete"), rpc_domain_delete, NULL);
   mg_rpc_add(&s_rpc_head, mg_str("client_connect"), rpc_client_connect, NULL);
   mg_rpc_add(&s_rpc_head, mg_str("add_rule"), add_rule, NULL);
   mg_rpc_add(&s_rpc_head, mg_str("rpc.list"), mg_rpc_list, &s_rpc_head);

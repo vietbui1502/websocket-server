@@ -14,6 +14,9 @@
     <button id="btn4">Add filter domain</button>
     <input type="text" id="adomain" name="adomain"><br>
     <div style="height: 0.3em;">&nbsp;</div>
+    <button id="btn6">Delete filter domain</button>
+    <input type="text" id="ddomain" name="ddomain"><br>
+    <div style="height: 0.3em;">&nbsp;</div>
     <p>Parental Control rule</p>
     <form>
       <label for="mac">MAC Address:</label>
@@ -43,8 +46,8 @@
   <script src="rpc-over-websocket.js"></script>
   <script>
     var rpc, E = function(id) { return document.getElementById(id); };
-    var url = E('url'), connect = E('connect'), btn1 = E('btn1'), btn2 = E('btn2'), btn3 = E('btn3'), btn4 = E('btn4'), btn5 = E('btn5'), msglog = E('log');
-    var enable = function(en) { btn1.disabled = btn2.disabled = btn3.disabled = btn4.disabled = btn5.disabled =!en; url.disabled = en; connect.innerHTML = en ? 'disconnect' : 'connect'; };
+    var url = E('url'), connect = E('connect'), btn1 = E('btn1'), btn2 = E('btn2'), btn3 = E('btn3'), btn4 = E('btn4'), btn5 = E('btn5'), btn6 = E('btn6'), msglog = E('log');
+    var enable = function(en) { btn1.disabled = btn2.disabled = btn3.disabled = btn4.disabled = btn5.disabled = btn6.disabled =!en; url.disabled = en; connect.innerHTML = en ? 'disconnect' : 'connect'; };
     var log = text => msglog.innerHTML += text + '<br/>\n';
     enable(false);
     connect.onclick = function() {
@@ -59,6 +62,7 @@
     btn2.onclick = ev => rpc.call('mul', [2, 3]).then(res => log('MUL:' + JSON.stringify(res)));
     btn3.onclick = ev => rpc.call('domain_query', [document.getElementById('qdomain').value]).then(res => log('domain_query:' + JSON.stringify(res)));
     btn4.onclick = ev => rpc.call('domain_add', [document.getElementById('adomain').value]).then(res => log('domain_add:' + JSON.stringify(res)));
+    btn6.onclick = ev => rpc.call('domain_delete', [document.getElementById('ddomain').value]).then(res => log('domain_delete:' + JSON.stringify(res)));
 
     const form = document.querySelector('form');
     form.addEventListener('submit', ev => {
