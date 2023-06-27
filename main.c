@@ -111,7 +111,7 @@ long removeDomain2(char *domain){
   long i;
   for (i = 0; i < numDomains; i++) {
     if (strcmp(domain_back_list[i], domain) == 0) {
-      domain_back_list[i] = NULL;
+      strcpy(domain_back_list[i], " ");
       return 1;
     }
   }
